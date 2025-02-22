@@ -1,117 +1,97 @@
-# ScribePath
+# ScribePath Backend
 
-ScribePath is a task and note management application designed to help technical product managers streamline their workflow. The application allows users to create and manage notes, tasks, categories, and tags while supporting authentication and file storage integrations.
-
-## **Table of Contents**
-- [Features](#features)
-- [Technologies Used](#technologies-used)
-- [Project Structure](#project-structure)
-- [Setup and Installation](#setup-and-installation)
-- [Environment Variables](#environment-variables)
-- [API Documentation](#api-documentation)
-- [Upcoming Features](#upcoming-features)
-- [License](#license)
+The backend of **ScribePath** is a **Node.js & Express.js API** designed for managing tasks and notes. It provides authentication, CRUD operations for notes and tasks, and integrations with Firebase Authentication and MongoDB.
 
 ---
 
-## **Features**
-✅ User Authentication using Firebase (Login, Registration, Password Reset)  
-✅ Secure API with JWT-based authentication  
-✅ CRUD operations for **Notes**, **Tasks**, and **Announcements**  
-✅ Categorization & tagging system for notes and tasks  
-✅ Soft delete functionality (Trash with 30-day retention)  
-✅ Full-text search for quick access to notes and tasks  
-✅ Rate limiting to prevent API abuse  
+## **🛠 Features**
+✅ **User Authentication** via Firebase  
+✅ **JWT-based API Security**  
+✅ **CRUD operations for Notes & Tasks**  
+✅ **Soft delete (Trash with auto-delete after 30 days)**  
+✅ **Full-text search support (Future update)**  
+✅ **Rate limiting to prevent API abuse**  
+✅ **Role-based access control (Future update)**  
 
 ---
 
-## **Technologies Used**
-### **Backend**:
-- Node.js
-- Express.js
-- MongoDB + Mongoose
-- Firebase Authentication
-- AWS S3 (for future file storage support)
-
-### **Frontend (Future Implementation)**:
-- React.js
-- Redux/Context API
-
-### **Deployment (To be Determined)**:
-- Possible services: **Heroku, AWS, DigitalOcean**
-- CI/CD via **GitHub Actions**
+## **🛠 Technologies Used**
+- **Backend Framework**: Node.js, Express.js  
+- **Database**: MongoDB + Mongoose  
+- **Authentication**: Firebase Authentication + JWT  
+- **File Storage**: AWS S3 (Future update)  
+- **Security**: Helmet.js, Rate Limiting, CORS  
 
 ---
 
-## **Project Structure**
+## **📂 Project Structure**
 ```
-/ScribePath
-├── /backend
-│   ├── /controllers      # Business logic for APIs
-│   ├── /middlewares      # Authentication & security layers
-│   ├── /models          # Mongoose schemas
-│   ├── /routes          # API endpoints
-│   ├── /services        # AWS/Firebase integrations
-│   ├── .env.example     # Example environment file
-│   ├── server.js        # Main Express.js server
-│   └── firebaseAdmin.js # Firebase admin setup
-├── /frontend (future implementation)
+backend/
+├── controllers/         # Business logic for APIs
+├── middlewares/         # Authentication & security layers
+├── models/              # MongoDB schemas
+├── routes/              # API endpoints
+├── services/            # AWS/Firebase integrations (future)
+├── test/                # API test scripts (for Postman)
+├── .env.example         # Example environment file
+├── firebaseAdmin.js     # Firebase admin setup
+├── rateLimiterMiddleware.js  # API rate limiting
+├── server.js            # Main Express server
+└── README.md            # Backend documentation
 ```
 
 ---
 
-## **Setup and Installation**
-### **Prerequisites**
-- Node.js (v14+)
-- MongoDB Atlas account
-- Firebase Project for authentication
-- AWS S3 bucket (for future file storage support)
-- Git
-
+## **🚀 Setup and Installation**
 ### **1️⃣ Clone the Repository**
 ```bash
 git clone https://github.com/MichelHQ-Projects/ScribePath.git
-cd ScribePath
+cd ScribePath/backend
 ```
 
 ### **2️⃣ Install Dependencies**
 ```bash
-cd backend
 npm install
 ```
 
 ### **3️⃣ Set Up Environment Variables**
-Create a `.env` file inside the `/backend` folder using the provided `.env.example` template:
+Create a `.env` file inside the `/backend` folder using the provided template:
 ```bash
 cp .env.example .env
 ```
-Fill in the required values for:
-- `PORT`
-- `MONGO_URI`
-- `FIREBASE_PROJECT_ID`
-- `FIREBASE_CLIENT_EMAIL`
-- `FIREBASE_PRIVATE_KEY`
-- `AWS_ACCESS_KEY_ID` (for future file support)
-- `AWS_SECRET_ACCESS_KEY`
-- `JWT_SECRET`
+Fill in the required values:
+```
+PORT=5000
+MONGO_URI=your_mongodb_connection_string
+FIREBASE_PROJECT_ID=your_firebase_project_id
+FIREBASE_CLIENT_EMAIL=your_firebase_service_account_email
+FIREBASE_PRIVATE_KEY=your_firebase_private_key
+JWT_SECRET=your_jwt_secret
+AWS_ACCESS_KEY_ID=your_aws_access_key  # (Future feature)
+AWS_SECRET_ACCESS_KEY=your_aws_secret_key
+AWS_S3_BUCKET_NAME=your_s3_bucket_name
+```
 
 ### **4️⃣ Start the Server**
 ```bash
 npm run dev
 ```
-The server should now be running at `http://localhost:5000`
+The backend should now be running at:
+```
+http://localhost:5000
+```
 
 ---
 
-## **API Documentation**
-### **Authentication**
+## **📖 API Documentation**
+### **📌 Authentication API**
 | Method | Endpoint               | Description                 | Auth Required |
 |--------|------------------------|-----------------------------|--------------|
 | POST   | `/api/users/register`  | Register a new user         | ❌ No |
 | POST   | `/api/users/login`     | Log in a user               | ❌ No |
 | POST   | `/api/users/reset-password` | Reset user password | ❌ No |
 
-### **Notes API**
+### **📌 Notes API**
 | Method | Endpoint       | Description                | Auth Required |
 |--------|---------------|----------------------------|--------------|
 | GET    | `/api/notes`  | Get all notes              | ✅ Yes |
@@ -120,7 +100,7 @@ The server should now be running at `http://localhost:5000`
 | PUT    | `/api/notes/:id` | Update an existing note | ✅ Yes |
 | DELETE | `/api/notes/:id` | Move note to trash       | ✅ Yes |
 
-### **Tasks API**
+### **📌 Tasks API**
 | Method | Endpoint       | Description               | Auth Required |
 |--------|---------------|---------------------------|--------------|
 | GET    | `/api/tasks`  | Get all tasks             | ✅ Yes |
@@ -131,26 +111,28 @@ The server should now be running at `http://localhost:5000`
 
 ---
 
-## **Upcoming Features**
-📌 **File Attachments for Notes** (Using AWS S3)  
-📌 **Collaborative Notes** (Real-time editing)  
-📌 **Version Control** (Track changes over time)  
-📌 **Reminders & Notifications** (Email + In-App Alerts)  
-📌 **OAuth Integration** (Login via Google, GitHub, etc.)  
-📌 **Personal vs. Team Environments** (Shared Notes & Tasks)  
-📌 **Drag and Drop Boards** (Trello-style task management)  
+## **🔐 Security & Middleware**
+- **Authentication Middleware**: Ensures only logged-in users can access protected routes.
+- **Rate Limiting**: Limits API requests to prevent abuse (`100 requests per 15 minutes`).
+- **CORS Policy**: Restricts access based on environment (`localhost` in dev, specific domains in prod).
+- **Helmet.js**: Adds security headers to API responses.
 
 ---
 
-## **License**
+## **📌 Upcoming Features**
+📌 **File Attachments for Notes (AWS S3)**  
+📌 **Collaborative Notes** (Real-time editing)  
+📌 **Reminders & Notifications** (Email + In-App Alerts)  
+📌 **Role-based Permissions** (Admin, Editor, Viewer)  
+📌 **OAuth Integration (Google, GitHub, etc.)**  
+📌 **Drag & Drop Boards (Trello-style Task Management)**  
+
+---
+
+## **📜 License**
 This project is licensed under the **MIT License**.
 
 ---
 
-## **🚀 Contributing**
-We welcome contributions! Please fork the repo and submit a pull request.
-
----
-
 ## **📫 Contact**
-For any questions or support, reach out via GitHub Issues or email: **your-email@example.com**.
+For any questions or support, reach out via GitHub Issues or email: **carlos@michelhq.com**.
