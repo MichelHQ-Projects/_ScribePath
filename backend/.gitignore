@@ -47,3 +47,6 @@ out/
 *.pid  
 *.seed  
 *.tgz  
+
+# ⚡ Test Files 
+test/
