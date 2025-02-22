@@ -46,7 +46,4 @@ out/
 *.bak  
 *.pid  
 *.seed  
-*.tgz  
-
-# ⚡ Test Files 
-backend/test/
+*.tgz 
