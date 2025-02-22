@@ -1,0 +1,11 @@
+## Upcoming Features
+- **Profile Picture Support (AWS S3 + External URLs)**
+  - Users will be able to upload profile pictures to AWS S3.
+  - Users can also provide an external URL for their profile picture.
+  - Each user will have only **one** profile picture at a time.
+  - If a user uploads a new picture, the old one will be **automatically replaced**.
+  - Profile pictures will be stored using the **user's Firebase UID** for easy retrieval.
+- **File Attachments for Notes**:
+  - Users will be able to upload files (images, PDFs, etc.) to notes.
+  - Files will be stored in **AWS S3** and linked via URLs.
+  - Attachments will be managed with proper permissions and deletions.

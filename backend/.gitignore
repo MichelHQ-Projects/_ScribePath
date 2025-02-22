@@ -1,0 +1,49 @@
+# ⚡ Node.js Dependencies  
+node_modules/  
+package-lock.json  
+
+# ⚡ Logs & Debugging  
+logs/  
+*.log  
+npm-debug.log*  
+yarn-debug.log*  
+yarn-error.log*  
+
+# ⚡ Environment Variables & Secrets  
+.env  
+.env.local  
+.env.development.local  
+.env.test.local  
+.env.production.local  
+
+# ⚡ Firebase & AWS Credentials  
+backend/firebaseAdmin.js  
+backend/firebaseAdmin.json  
+backend/test/testAuth.js  
+backend/test/getFirebaseIdToken.js  
+
+# ⚡ IDE & Editor Config Files  
+.vscode/  
+.idea/  
+*.swp  
+*.swo  
+.DS_Store  
+Thumbs.db  
+
+# ⚡ MongoDB Local Data  
+/data/db/  
+dump/  
+
+# ⚡ Build & Cache Files  
+dist/  
+coverage/  
+.cache/  
+.next/  
+out/  
+
+# ⚡ Temporary Files  
+*.tmp  
+*.bak  
+*.pid  
+*.seed  
+*.tgz  
