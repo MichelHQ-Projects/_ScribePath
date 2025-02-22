@@ -49,4 +49,4 @@ out/
 *.tgz  
 
 # ⚡ Test Files 
-/test
+test/
