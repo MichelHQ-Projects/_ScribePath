@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- ✅ Optimized Page Title -->
+  <title>Scribe Path - Task & Note Management</title>
+
+  <!-- ✅ Optimized Meta Description for SEO -->
+  <meta
+    name="description"
+    content="Scribe Path is a task and note management platform designed to streamline productivity and organization for individuals and teams."
+  >
+
+  <!-- ✅ Open Graph (OG) Meta Tags for Social Sharing -->
+  <meta property="og:title" content="Scribe Path - The Ultimate Productivity Platform">
+  <meta
+    property="og:description"
+    content="Organize your tasks, take notes, collaborate, and manage projects efficiently with Scribe Path."
+  >
+  <meta property="og:image" content="%PUBLIC_URL%/scribepath-og-image.png">
+  <meta property="og:url" content="https://www.scribepath.com">
+  <meta property="og:site_name" content="Scribe Path">
+  <meta property="og:type" content="website">
+
+  <!-- ✅ Twitter Card Meta Tags for Twitter Sharing -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Scribe Path - Task & Note Management">
+  <meta
+    name="twitter:description"
+    content="Boost productivity with Scribe Path - your all-in-one task and note management system."
+  >
+  <meta name="twitter:image" content="%PUBLIC_URL%/scribepath-twitter-card.png">
+  <meta name="twitter:site" content="@scribe_path">
+  <meta name="twitter:creator" content="@scribe_path">
+
+  <!-- ✅ Favicon and Web App Icons -->
+  <link rel="icon" href="%PUBLIC_URL%/Favicon_Transparent.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="%PUBLIC_URL%/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="%PUBLIC_URL%/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="%PUBLIC_URL%/favicon-16x16.png">
+  <link rel="manifest" href="%PUBLIC_URL%/site.webmanifest">
+  <meta name="msapplication-TileColor" content="#4a4a4a">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- ✅ Responsive Design for Mobile -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- ✅ Preconnect to Improve Font Loading Performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <!-- ✅ Optimized Font Loading (Inter Font) -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <!-- ✅ Comment: Ensure Public Folder URLs are Correct -->
+  <!-- %PUBLIC_URL% references files in the public folder -->
+</head>
+
+<body>
+  <script>
+    // Insert this script in your index.html right after the <body> tag.
+    // This will help to prevent a flash if dark mode is the default.
+
+    (function () {
+      // Change these if you use something different in your hook.
+      var storageKey = 'darkMode';
+      var classNameDark = 'dark-mode';
+      var classNameLight = 'light-mode';
+
+      function setClassOnDocumentBody(darkMode) {
+        document.body.classList.add(darkMode ? classNameDark : classNameLight);
+        document.body.classList.remove(darkMode ? classNameLight : classNameDark);
+      }
+
+      var preferDarkQuery = '(prefers-color-scheme: dark)';
+      var mql = window.matchMedia(preferDarkQuery);
+      var supportsColorSchemeQuery = mql.media === preferDarkQuery;
+      var localStorageTheme = null;
+      try {
+        localStorageTheme = localStorage.getItem(storageKey);
+      } catch (err) { }
+      var localStorageExists = localStorageTheme !== null;
+      if (localStorageExists) {
+        localStorageTheme = JSON.parse(localStorageTheme);
+      }
+
+      // Determine the source of truth
+      if (localStorageExists) {
+        // source of truth from localStorage
+        setClassOnDocumentBody(localStorageTheme);
+      } else if (supportsColorSchemeQuery) {
+        // source of truth from system
+        setClassOnDocumentBody(mql.matches);
+        localStorage.setItem(storageKey, mql.matches);
+      } else {
+        // source of truth from document.body
+        var isDarkMode = true; // Force default to dark mode
+        setClassOnDocumentBody(isDarkMode);
+        localStorage.setItem(storageKey, JSON.stringify(isDarkMode));
+      }
+    })();
+  </script>
+  <div id="root"></div>
+</body>
+
+</html>
