@@ -30,44 +30,55 @@ const getUserProfile = async (req, res) => {
  */
 
 const createUser = async (req, res) => {
-    try{
-        const { name, email, password} = req.body;
+  try {
+    const { name, email, password } = req.body;
 
-        // Validate user input
+    // 1. Validate user input
     if (!email || !name || !password) {
-        return res.status(400).json({ message: "Email and name are required" });
-      }
-      if (name.length < 2 || name.length > 50) {
-        return res.status(400).json({ message: "Name must be between 2 and 50 characters" });
-      }
+      return res.status(400).json({ message: "Email, name, and password are required" });
+    }
+    if (name.length < 2 || name.length > 50) {
+      return res.status(400).json({ message: "Name must be between 2 and 50 characters" });
+    }
 
-        // Check if user already exists
+    // 2. Check if user already exists in MongoDB
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Create user in Firebase Authentication
+    // 3. Create user in Firebase Authentication
     const firebaseUser = await admin.auth().createUser({
       email,
       password,
       displayName: name,
+      emailVerified: false, // Ensure users start unverified
     });
 
-         // Create a new user
-    // Create user in MongoDB
+    // 4. Generate email verification link
+    const verificationLink = await admin.auth().generateEmailVerificationLink(email);
+
+    // 5. Save user in MongoDB (after successful Firebase registration)
     const user = new User({
-      firebaseUID: firebaseUser.uid, // Get UID from Firebase
+      firebaseUID: firebaseUser.uid, // Store Firebase UID
       email,
       name,
     });
     await user.save();
 
-    res.status(201).json({ message: "User registered successfully", user });
+    // 6. Send final success response (ONLY ONE)
+    res.status(201).json({
+      message: "User registered successfully. Please verify your email.",
+      userId: firebaseUser.uid,
+    });
+
   } catch (error) {
+    console.error("Error in createUser:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+module.exports = { createUser };
 
 /**
  * @desc Update a user profile

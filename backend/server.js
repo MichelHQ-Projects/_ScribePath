@@ -22,6 +22,7 @@ mongoose.connect(process.env.MONGO_URI)
   // Routes
 app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/notes", require("./routes/noteRoutes"));
+app.use("/api/categories", require("./routes/categoryRoutes"));
 
   app.get("/", (req, res) => {
   res.send("ScribePath API is running...");

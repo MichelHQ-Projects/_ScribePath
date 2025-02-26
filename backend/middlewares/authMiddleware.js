@@ -2,23 +2,23 @@ const admin = require("../firebaseAdmin");
 
 const authenticateUser = async (req, res, next) => {
     try {
-        const token = req.headers.authorization;
-        if (!token || !token.startsWith("Bearer ")) {
-            res.status(401);
-            throw new Error("Not authorized, no token");
+        const token = req.headers.authorization?.split(" ")[1]; // ✅ Safe extraction
+
+        if (!token) {
+            return res.status(401).json({ message: "Unauthorized, no token provided" });
         }
 
-        // Extract the token correctly
-        const tokenValue = token.split(" ")[1];
+        // ✅ Verify the token using Firebase
+        const decodedToken = await admin.auth().verifyIdToken(token);
 
-        //Verify the token using Firebase
+        // ✅ Attach only necessary user info (avoid exposing the whole token)
+        req.user = { uid: decodedToken.uid, email: decodedToken.email };
 
-        const decodedToken = await admin.auth().verifyIdToken(tokenValue);
-        req.user = decodedToken;
         next();
     } catch (error) {
-        res.status(401).json({ message: "Not authorized, token failed", error: error.message });
+        res.status(401).json({ message: "Unauthorized, token invalid", error: error.message });
     }
 };
 
 module.exports = authenticateUser;
+
