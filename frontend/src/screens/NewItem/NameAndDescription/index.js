@@ -11,8 +11,7 @@ import Dropdown from "../../../components/Dropdown";
 
 const options = ["Note", "Task", "Project"];
 
-const NameAndDescription = ({ className, setTitle, descriptionState, setDescription }) => {
-
+const NameAndDescription = ({ className, setTitle, descriptionState, setDescription, selectedType, setSelectedType}) => {
     return (
         <Card
             className={cn(styles.card, className)}
@@ -46,10 +45,13 @@ const NameAndDescription = ({ className, setTitle, descriptionState, setDescript
                     tooltip="Description"
                 />
                 <Dropdown
-                          className={styles.field}
-                          label="Type of Item"
-                          tooltip="Maximum 100 characters. No HTML or emoji allowed"
-                          options={options}
+                    className={styles.field}
+                    label="Type of Item"
+                    tooltip="Select whether this is a Note, Task, or Project"
+                    options={options}
+                    value={selectedType} // ✅ Bind state to value
+                    setValue={setSelectedType} // ✅ Update selected type on change
+                    required
                 />
             </div>
         </Card>

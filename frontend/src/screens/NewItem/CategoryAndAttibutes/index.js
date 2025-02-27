@@ -19,13 +19,12 @@ const KeyCodes = {
 };
 const delimiters = [KeyCodes.comma, KeyCodes.enter];
 
-const CategoryAndAttibutes = ({ className, setCategory, setTags }) => {
+const CategoryAndAttibutes = ({ className, setCategory, setTags, token }) => {
   const [category, setCategoryState] = useState(optionsCategory[0]);
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [categories, setCategories] = useState([]);
   const [newCategory, setNewCategory] = useState("");
   const [tags, setTagsState] = useState([{ id: "Work", text: "Work" }]);
-  const token = localStorage.getItem("token"); // Replace with actual authentication system
 
   // ✅ Fetch categories on mount
   useEffect(() => {
@@ -59,17 +58,21 @@ const CategoryAndAttibutes = ({ className, setCategory, setTags }) => {
 
   const handleCreateCategory = async () => {
     if (!newCategory.trim()) return;
+
     try {
-      const category = await createCategory(newCategory, token);
-      setCategories((prev) => [...prev, category.name]);
-      setCategoryState(category.name);
-      setCategory(category.name);
-      setNewCategory("");
-      setIsCreatingCategory(false);
+        if (!token) throw new Error("User not authenticated"); // ✅ Ensure token exists
+
+        const category = await createCategory(newCategory, token); // ✅ Use token correctly
+
+        setCategories((prev) => [...prev, category.name]); // ✅ Add new category
+        setCategoryState(category.name); // ✅ Set category state
+        setCategory(category.name);
+        setNewCategory("");
+        setIsCreatingCategory(false); // ✅ Switch back to dropdown
     } catch (error) {
-      console.error(error.message);
+        console.error("Failed to create category:", error.message);
     }
-  };
+};
 
   const handleAddition = (tag) => {
     if (tags.length < MAX_TAGS) {

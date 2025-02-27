@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = '/api/categories';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+const API_URL = `${API_BASE_URL}/api/categories`; // ✅ Ensure this is correct
+
 
 export const getCategories = async (token) => {
     try {
@@ -19,7 +21,12 @@ export const createCategory = async (categoryName, token) => {
         const response = await axios.post(
             API_URL,
             {name: categoryName},
-            {headers: {Authorization: `Bearer ${token}`}}
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+            }
         )
         return response.data;
     } catch (error) {

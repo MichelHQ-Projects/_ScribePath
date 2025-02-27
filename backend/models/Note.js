@@ -7,9 +7,9 @@ const noteSchema = new mongoose.Schema(
         required: true,
         },
         content: {
-        type: String,
-        required: true,
-        },
+            raw: { type: Object, required: true },  // ✅ Full Draft.js raw data
+            text: { type: String, required: true }  // ✅ Plain text version
+          },
         userId: { type: String, 
         required: true
         },
@@ -18,7 +18,6 @@ const noteSchema = new mongoose.Schema(
         },
         category: {
         type: String,
-        enum: ["Reminders", "Work", "Personal", "Others"],
         default: "Others",
         },
         trashed: {

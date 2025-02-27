@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import styles from "./NewProduct.module.sass";
 import { createNote } from "../../services/noteService";
+import { useAuth } from "../../context/AuthContext";
+import { convertToRaw } from "draft-js";
+
 import TooltipGlodal from "../../components/TooltipGlodal";
 import Modal from "../../components/Modal";
 import Schedule from "../../components/Schedule";
@@ -10,7 +13,12 @@ import CategoryAndAttibutes from "./CategoryAndAttibutes";
 import Preview from "./Preview";
 import Panel from "./Panel";
 
-const NewProduct = (token) => {
+const API_URL = process.env.REACT_APP_API_BASE_URL 
+    ? `${process.env.REACT_APP_API_BASE_URL}/api/notes`
+    : 'http://localhost:5000/api/notes';
+
+const NewProduct = () => {
+    const { token } = useAuth();
     const [isEditing, setIsEditing] = useState(false); // ✅ Track if editing an existing item
     const [itemType, setItemType] = useState("Note"); // ✅ Track "Type of Item" selection
     const [visiblePreview, setVisiblePreview] = useState(false);
@@ -21,6 +29,7 @@ const NewProduct = (token) => {
     //Form State
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
+    const [imageUrl, setImageUrl] = useState(""); // ✅ Track uploaded image
     const [category, setCategory] = useState('');
     const [tags, setTags] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -29,7 +38,7 @@ const NewProduct = (token) => {
 
     const handleClearForm = () => {
         setTitle("");
-        setDescription("");
+        setDescription({});
         setCategory("");
         setTags([]);
         setItemType("Note"); // Reset type to default
@@ -52,28 +61,54 @@ const NewProduct = (token) => {
         }
     };
 
-    //Handle Submit
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setError(null);
         setSuccess(false);
+    
+        if (!token) {
+            setError("User not authenticated"); // ✅ Ensure token exists
+            setLoading(false);
+            return;
+        }
+    
+        if (itemType !== "Note") {
+            setError("Only 'Note' is supported at this time.");
+            setLoading(false);
+            return;
+        }
 
-        const token = localStorage.getItem('token');
-        const noteData = { title, content: description, category, tags};
+        // ✅ Extract plain text and full rich-text data
+        let plainTextContent = "";
+        let rawContent = null;
 
+        if (description && description.getCurrentContent) {
+            const contentState = description.getCurrentContent();
+            plainTextContent = contentState.getPlainText();  // ✅ Store plain text
+            rawContent = convertToRaw(contentState);  // ✅ Store full raw format
+        }
+    
+        const noteData = {
+            title,
+            content: { raw: rawContent, text: plainTextContent },  // ✅ Store as object
+            category,
+            tags
+        };
+    
         try {
-            await createNote(noteData, token);
-            setSuccess(true);
-            setTitle('');
-            setDescription('');
-            setCategory('');
-            setTags([]);
+            const response = await createNote(noteData, token);
+            if (!response) throw new Error("Failed to create note.");
+    
+            setSuccess("Note Created Successfully!");
+            setIsEditing(true);
+            handleClearForm(); // ✅ Reset form after success
+    
         } catch (error) {
             setError(error.message);
         } finally {
             setLoading(false);
-        };
+        }
     };
 
     return (
@@ -86,6 +121,8 @@ const NewProduct = (token) => {
                             setTitle={setTitle} 
                             setDescription={setDescription}
                             descriptionState={description}
+                            selectedType={itemType} // ✅ Pass type selection
+                            setSelectedType={setItemType} // ✅ Allow type change
                         />
                         <ImagesAndCTA 
                             className={styles.card} 
@@ -94,13 +131,16 @@ const NewProduct = (token) => {
                         <CategoryAndAttibutes 
                             className={styles.card}
                             setCategory={setCategory} 
-                            setTags={setTags}  
+                            setTags={setTags}
+                            token={token}
                         />
                     </div>
                     <div className={styles.col}>
                         <Preview
                             visible={visiblePreview}
                             onClose={() => setVisiblePreview(false)}
+                            title={title} 
+                            imageUrl={imageUrl}
                         />
                     </div>
                 </div>

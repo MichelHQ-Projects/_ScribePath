@@ -4,7 +4,10 @@ import styles from "./Preview.module.sass";
 import Card from "../../../components/Card";
 import Icon from "../../../components/Icon";
 
-const Preview = ({ visible, onClose }) => {
+const Preview = ({ visible, onClose, title, imageUrl }) => {
+
+  if (!visible) return null;
+  
   return (
     <div className={cn(styles.preview, { [styles.visible]: visible })}>
       <button className={styles.close} onClick={onClose}>
@@ -17,19 +20,18 @@ const Preview = ({ visible, onClose }) => {
         classTitle="title-blue"
         head={
           <button className={styles.button}>
-            <Icon name="expand" size="24" />
+            <Icon name="close" size="24" />
           </button>
         }
       >
         <div className={styles.body}>
           <div className={styles.photo}>
-            <img src="/images/content/photo-1.jpg" alt="Product" />
+            <img src={imageUrl || "/images/content/photo-1.jpg"} alt="Product" />
           </div>
           <div className={styles.line}>
             <div className={styles.title}>
-              Fleet - Travel shopping UI design kit
+            {title || "Untitled Note"} {/* Default if empty */}
             </div>
-            <div className={styles.price}>$98</div>
           </div>
           <div className={styles.user}>
             <div className={styles.avatar}>

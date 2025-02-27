@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = '/api/notes'; // Adjust based on backend URL
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || "http://localhost:5000";
+const API_URL = `${API_BASE_URL}/api/notes`; // ✅ Ensure this is correct
 
 export const createNote = async (noteData, token) => {
     try {

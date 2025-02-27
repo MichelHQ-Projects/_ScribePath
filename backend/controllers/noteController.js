@@ -7,6 +7,8 @@ const Note = require("../models/Note");
  */
 const createNote = async (req, res) => {
     try {
+        console.log(req.body);
+        console.log(req.user);
         const { title, content, tags, category } = req.body;
         
         // Validate input
