@@ -10,7 +10,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+// ✅ Allow requests from frontend origin
+const corsOptions = {
+  origin: "http://localhost:3000", // Allow frontend access
+  methods: "GET,POST,PUT,DELETE", // Specify allowed methods
+  allowedHeaders: "Content-Type,Authorization", // Ensure Authorization header is allowed
+};
+
+app.use(cors(corsOptions)); // Apply CORS middleware
+
 app.use(express.json());
 app.use(apiLimiter); // Apply rate limiting globally
 
