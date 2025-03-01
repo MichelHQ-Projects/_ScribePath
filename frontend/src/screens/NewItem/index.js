@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { createNote } from "../../services/noteService";
+import { createTask } from "../../services/taskService";
 import { useAuth } from "../../context/AuthContext";
 import { convertToRaw, EditorState } from "draft-js";
 import { toast, ToastContainer } from 'react-toastify';
@@ -14,6 +15,7 @@ import Schedule from "../../components/Schedule";
 import NameAndDescription from "./NameAndDescription";
 import ImagesAndCTA from "./ImagesAndCTA";
 import CategoryAndAttibutes from "./CategoryAndAttibutes";
+import PriorityAndScheduling from "./PriorityAndScheduling";
 import Preview from "./Preview";
 import Panel from "./Panel";
 
@@ -23,8 +25,7 @@ const NewProduct = () => {
     const [itemType, setItemType] = useState("Note"); // ✅ Track "Type of Item" selection
     const [visiblePreview, setVisiblePreview] = useState(false);
     const [visibleModal, setVisibleModal] = useState(false);
-    const [startDate, setStartDate] = useState(new Date());
-    const [startTime, setStartTime] = useState(new Date());
+    const [startDate, setStartDate] = useState(new Date()); // ✅ Task-Specific
 
     //Form State
     const [title, setTitle] = useState('');
@@ -36,6 +37,8 @@ const NewProduct = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState('');
+    const [priority, setPriority] = useState("Medium"); // ✅ Task-Specific
+    const [completed, setCompleted] = useState(false); // ✅ Task-Specific
 
     const handleClearForm = () => {
         setTitle("");
@@ -45,6 +48,8 @@ const NewProduct = () => {
         setItemType("Note"); // Reset type to default
         setImageFile(null);
         setPreviewUrl(null);
+        setPriority("Medium");
+        setCompleted(false);
     };
 
     const handleShareableLink = async () => {
@@ -93,15 +98,15 @@ const NewProduct = () => {
             return;
         }
     
-        if (itemType !== "Note") {
-            toast.error("⚠️ Only 'Note' is supported at this time.", {
-                position: "bottom-left",
-                autoClose: 5000,
-                hideProgressBar: true,
-            });
-            setLoading(false);
-            return;
-        }
+        // if (itemType !== "Note") {
+        //     toast.error("⚠️ Only 'Note' is supported at this time.", {
+        //         position: "bottom-left",
+        //         autoClose: 5000,
+        //         hideProgressBar: true,
+        //     });
+        //     setLoading(false);
+        //     return;
+        // }
     
         // ✅ Extract plain text and full rich-text data
         let plainTextContent = "";
@@ -135,20 +140,31 @@ const NewProduct = () => {
             }
         }
     
-        const noteData = {
+        const data = {
             title,
             content: { raw: rawContent, text: plainTextContent }, // ✅ Store as object
             category,
             tags: tags.map(tag => (typeof tag === "object" ? tag.text : tag)), // ✅ Extract tag text,
             imageUrl: uploadedImageUrl, // ✅ Store image URL
         };
+
+        // ✅ If Creating a Task, Include Additional Fields
+        if (itemType === "Task") {
+            data.dueDate = startDate;
+            data.priority = priority;
+            data.completed = completed;
+        }
     
         try {
-            await createNote(noteData, token);
-            toast.success("✅ Note Created Successfully!", { position: "bottom-left" });
+            if (itemType === "Task") {
+                await createTask(data, token); // ✅ Task API Call
+            } else {
+                await createNote(data, token); // ✅ Note API Call
+            }
+
+            toast.success(`✅ ${itemType} Created Successfully!`, { position: "bottom-left" });
             setIsEditing(true);
-            handleClearForm(); // ✅ Reset form after success
-    
+            handleClearForm();
         } catch (error) {
             toast.error(`🚨 Error: ${error.message}`, { position: "bottom-left" });
         } finally {
@@ -182,6 +198,15 @@ const NewProduct = () => {
                             setTags={setTags}
                             token={token}
                         />
+                        {itemType === "Task" && 
+                            <PriorityAndScheduling 
+                            className={styles.card} 
+                            selectedPriority={priority} 
+                            setSelectedPriority={setPriority} 
+                            completed={completed} 
+                            setCompleted={setCompleted} 
+                            startDate={startDate} 
+                            setStartDate={setStartDate}  />}
                     </div>
                     <div className={styles.col}>
                         <Preview
@@ -210,8 +235,6 @@ const NewProduct = () => {
                     <Schedule
                         startDate={startDate}
                         setStartDate={setStartDate}
-                        startTime={startTime}
-                        setStartTime={setStartTime}
                     />
                 </Modal>
             </form>

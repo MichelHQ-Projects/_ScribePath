@@ -17,21 +17,7 @@ const Panel = ({
   
   const actions = [
     // ✅ Show "Schedule Task" only if itemType is "Task"
-    ...(itemType === "Task"
-        ? [
-            {
-                title: "Schedule Task",
-                icon: "calendar",
-                action: () => setVisibleSchedule(true),
-            }
-        ]
-        : []),
-      {},
-    {
-        title: "Save & Share",
-        icon: "link",
-        action: onGenerateLink, // ✅ Generates link & saves
-    },
+    {},
     {
       title: "Preview",
       icon: "expand",

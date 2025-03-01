@@ -3,6 +3,7 @@ import styles from "./Schedule.module.sass";
 import cn from "classnames";
 import Item from "./Item";
 import Icon from "../Icon";
+import Tooltip from "../Tooltip"; // ✅ Ensure Tooltip is imported
 import DatePicker from "react-datepicker";
 import { format } from "date-fns";
 
@@ -24,10 +25,9 @@ const Schedule = ({
 
   return (
     <div className={cn(styles.schedule, className)}>
-      <div className={cn("title-red", styles.title)}>Reschedule product</div>
-      <div className={styles.note}>
-        Choose a day and time in the future you want your product to be
-        published.
+      <div className={styles.title}>
+        Due Date {" "}
+      <Tooltip className={styles.tooltip} title="Mark task as completed" icon="info" place="top" />
       </div>
       <div className={styles.list}>
         <Item
@@ -48,12 +48,14 @@ const Schedule = ({
             <div className={styles.foot}>
               <button
                 className={cn("button-stroke button-small", styles.button)}
+                type="button"
                 onClick={() => handleClick()}
               >
                 Clear
               </button>
               <button
                 className={cn("button-small", styles.button)}
+                type="button"
                 onClick={() => setVisibleDate(false)}
               >
                 Close
@@ -61,41 +63,6 @@ const Schedule = ({
             </div>
           </div>
         </Item>
-        <Item
-          className={styles.item}
-          category="Time"
-          icon="clock"
-          value={startTime && format(startTime, "h:mm aa")}
-          visible={visibleTime}
-          setVisible={setVisibleTime}
-        >
-          <div className={styles.time}>
-            <div className={styles.top}>
-              <div className={styles.subtitle}>
-                {startTime && format(startTime, "h:mm aa")}
-              </div>
-              <button
-                className={styles.close}
-                onClick={() => setVisibleTime(false)}
-              >
-                <Icon name="close" size="20" />
-              </button>
-            </div>
-            <DatePicker
-              selected={startTime}
-              onChange={(date) => setStartTime(date)}
-              showTimeSelect
-              showTimeSelectOnly
-              timeIntervals={30}
-              timeCaption={false}
-              dateFormat="h:mm aa"
-              inline
-            />
-          </div>
-        </Item>
-      </div>
-      <div className={styles.btns}>
-        <button className={cn("button", styles.button)}>Reschedule</button>
       </div>
     </div>
   );

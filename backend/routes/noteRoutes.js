@@ -1,5 +1,6 @@
 const express = require("express");
 const authenticateUser = require("../middlewares/authMiddleware");
+
 const {
     createNote,
     getNotes,

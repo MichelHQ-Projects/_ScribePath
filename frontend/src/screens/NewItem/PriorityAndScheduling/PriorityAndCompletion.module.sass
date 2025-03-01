@@ -1,0 +1,46 @@
+@import ../../../styles/helpers
+    
+.description
+    & > .field 
+        &:not(:last-child)
+            margin-bottom: 32px
+            +d
+                margin-bottom: 24px
+    & > .card
+        &:not(:last-child)
+            margin-bottom: 32px
+            +d
+                margin-bottom: 24px
+    & > .switch
+        &:not(:last-child)
+            margin-bottom: 32px
+            +d
+                margin-bottom: 24px
+
+
+.line
+    display: flex
+    align-items: center
+    margin-bottom: 16px
+    padding-bottom: 16px
+    margin-top: 32px
+    +d
+        margin-bottom: 24px
+    +dark
+        border-color: $n6
+
+.info
+    margin-right: auto
+    +base2
+    color: $n5
+    +dark
+        color: $n3
+
+.tooltip
+    position: relative
+    top: -1
+    svg
+        fill: $shades1
+
+
+

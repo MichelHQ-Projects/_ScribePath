@@ -32,6 +32,7 @@ app.use("/api/users", require("./routes/userRoutes"));
 app.use("/api/notes", require("./routes/noteRoutes"));
 app.use("/api/categories", require("./routes/categoryRoutes"));
 app.use("/api/images", require("./routes/imageRoutes"));
+app.use("/api/tasks", require("./routes/taskRoutes"));
 
   app.get("/", (req, res) => {
   res.send("ScribePath API is running...");
