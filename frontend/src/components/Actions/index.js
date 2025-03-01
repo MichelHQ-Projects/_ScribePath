@@ -42,7 +42,7 @@ const Actions = ({
                     }
                 )}
             >
-                <button
+                <button type="button"
                     className={cn(styles.head, classActionsHead)}
                     onClick={() => toggle()}
                 >
@@ -50,7 +50,7 @@ const Actions = ({
                 </button>
                 <div className={cn(styles.body, classActionsBody)}>
                     {items.map((x, index) => (
-                        <button
+                        <button type="button"
                             className={cn(styles.option, classActionsOption)}
                             onClick={x.action}
                             key={index}

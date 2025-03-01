@@ -28,6 +28,7 @@
     "react-scripts": "5.0.1",
     "react-slick": "^0.30.3",
     "react-tag-input": "^6.10.6",
+    "react-toastify": "^11.0.5",
     "react-tooltip": "^5.28.0",
     "recharts": "^2.15.1",
     "sass": "^1.85.1",

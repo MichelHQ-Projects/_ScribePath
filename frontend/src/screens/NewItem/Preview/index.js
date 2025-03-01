@@ -10,16 +10,13 @@ const Preview = ({ visible, onClose, title, imageUrl }) => {
   
   return (
     <div className={cn(styles.preview, { [styles.visible]: visible })}>
-      <button className={styles.close} onClick={onClose}>
-        <Icon name="close" size="24" />
-      </button>
       <Card
         className={styles.card}
         classCardHead={styles.head}
         title="Preview"
         classTitle="title-blue"
         head={
-          <button className={styles.button}>
+          <button type="button" className={styles.button} onClick={onClose}>
             <Icon name="close" size="24" />
           </button>
         }

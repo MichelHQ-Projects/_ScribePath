@@ -4,7 +4,7 @@ import styles from "./ImagesAndCTA.module.sass";
 import Card from "../../../components/Card";
 import File from "../../../components/File";
 
-const ImagesAndCTA = ({ className }) => {
+const ImagesAndCTA = ({ className, setImageFile, setPreviewUrl }) => {
 
   return (
     <Card
@@ -17,7 +17,9 @@ const ImagesAndCTA = ({ className }) => {
           className={styles.field}
           title="Click or drop image"
           label="Cover images"
-          tooltip="Maximum 100 characters. No HTML or emoji allowed"
+          tooltip="Attach an image to your note for better visualization. PNG & JPG supported."
+          setImageFile={setImageFile} // ✅ Pass file to parent
+          setPreviewUrl={setPreviewUrl} // ✅ Update preview
         />
       </div>
     </Card>

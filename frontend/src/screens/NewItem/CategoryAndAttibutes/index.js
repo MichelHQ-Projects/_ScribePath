@@ -117,6 +117,7 @@ const CategoryAndAttibutes = ({ className, setCategory, setTags, token }) => {
           <TextInput
             className={styles.field}
             label="Category"
+            tooltip="Organize your note by selecting a relevant category."
             placeholder="Enter category name"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
@@ -131,7 +132,7 @@ const CategoryAndAttibutes = ({ className, setCategory, setTags, token }) => {
           <Dropdown
             className={styles.field}
             label="Category"
-            tooltip="Maximum 100 characters. No HTML or emoji allowed"
+            tooltip="Organize your note by selecting a relevant category."
             value={category}
             setValue={handleCategoryChange}
             options={[...categories, "Create a new category"]}
@@ -140,7 +141,7 @@ const CategoryAndAttibutes = ({ className, setCategory, setTags, token }) => {
         <div className={styles.head}>
           <div className={styles.label}>
             Tags{" "}
-            <Tooltip className={styles.tooltip} title="Maximum 100 characters. No HTML or emoji allowed" icon="info" place="right" />
+            <Tooltip className={styles.tooltip} title="Add keywords to make searching for this note easier" icon="info" place="right" />
           </div>
           <div className={styles.counter}>
             <span>{tags.length}</span>/5 tags

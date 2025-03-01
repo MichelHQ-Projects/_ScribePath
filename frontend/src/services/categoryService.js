@@ -38,7 +38,7 @@ export const createCategory = async (categoryName, token) => {
 export const updateCategory = async (categoryId, newName, token) => {
     try {
         const response= await axios.put(
-            '${API_URL}/${categoryId}',
+            `${API_URL}/${categoryId}`,
             {name: newName},
             {headers: {Authorization: `Bearer ${token}`}}
         );
@@ -52,7 +52,7 @@ export const updateCategory = async (categoryId, newName, token) => {
 export const deleteCategory = async (categoryId, token) => {
     try {
         const response = await axios.delete(
-            '${API_URL}/${categoryId}',
+            `${API_URL}/${categoryId}`,
             {headers: {Authorization: `Bearer ${token}`}}
         );
         return response.data;

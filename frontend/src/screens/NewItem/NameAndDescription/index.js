@@ -1,7 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import cn from "classnames";
 import { Link } from "react-router-dom";
+import { EditorState } from "draft-js";
+
 import styles from "./NameAndDescription.module.sass";
+
 import Card from "../../../components/Card";
 import Icon from "../../../components/Icon";
 import TextInput from "../../../components/TextInput";
@@ -11,7 +14,14 @@ import Dropdown from "../../../components/Dropdown";
 
 const options = ["Note", "Task", "Project"];
 
-const NameAndDescription = ({ className, setTitle, descriptionState, setDescription, selectedType, setSelectedType}) => {
+const NameAndDescription = ({ className, title, setTitle, descriptionState, setDescription, selectedType, setSelectedType}) => {
+
+    const handleEditorChange = (newState) => {
+        if (newState instanceof EditorState) {
+            setDescription(newState); // ✅ Ensure only valid `EditorState` is set
+        }
+    };
+
     return (
         <Card
             className={cn(styles.card, className)}
@@ -33,21 +43,24 @@ const NameAndDescription = ({ className, setTitle, descriptionState, setDescript
                     label="Title"
                     name="title"
                     type="text"
+                    value={title}
                     onChange={(e) => setTitle(e.target.value)} 
-                    tooltip="Maximum 100 characters. No HTML or emoji allowed"
+                    tooltip="Give your note a clear and concise title. Maximum 100 characters."
                     required
                 />
                 <Editor
                     classEditor={styles.editor}
                     label="Description"
                     state={descriptionState}
-                    onChange={setDescription}
-                    tooltip="Description"
+                    onChange={handleEditorChange}
+                    tooltip="Write the details of your note here. Supports rich text formatting."
+                    placeholder="Write your description here..." 
+                    required
                 />
                 <Dropdown
                     className={styles.field}
                     label="Type of Item"
-                    tooltip="Select whether this is a Note, Task, or Project"
+                    tooltip="Select whether this is a Note, Task, or Project."
                     options={options}
                     value={selectedType} // ✅ Bind state to value
                     setValue={setSelectedType} // ✅ Update selected type on change

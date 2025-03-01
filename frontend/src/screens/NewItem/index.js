@@ -1,8 +1,12 @@
 import React, { useState } from "react";
-import styles from "./NewProduct.module.sass";
 import { createNote } from "../../services/noteService";
 import { useAuth } from "../../context/AuthContext";
-import { convertToRaw } from "draft-js";
+import { convertToRaw, EditorState } from "draft-js";
+import { toast, ToastContainer } from 'react-toastify';
+import axios from "axios";
+
+import 'react-toastify/dist/ReactToastify.css';
+import styles from "./NewProduct.module.sass";
 
 import TooltipGlodal from "../../components/TooltipGlodal";
 import Modal from "../../components/Modal";
@@ -13,11 +17,7 @@ import CategoryAndAttibutes from "./CategoryAndAttibutes";
 import Preview from "./Preview";
 import Panel from "./Panel";
 
-const API_URL = process.env.REACT_APP_API_BASE_URL 
-    ? `${process.env.REACT_APP_API_BASE_URL}/api/notes`
-    : 'http://localhost:5000/api/notes';
-
-const NewProduct = () => {
+const NewProduct = () => {    
     const { token } = useAuth();
     const [isEditing, setIsEditing] = useState(false); // ✅ Track if editing an existing item
     const [itemType, setItemType] = useState("Note"); // ✅ Track "Type of Item" selection
@@ -28,8 +28,9 @@ const NewProduct = () => {
 
     //Form State
     const [title, setTitle] = useState('');
-    const [description, setDescription] = useState('');
-    const [imageUrl, setImageUrl] = useState(""); // ✅ Track uploaded image
+    const [description, setDescription] = useState(() => EditorState.createEmpty()); // ✅ Track rich-text data
+    const [imageFile, setImageFile] = useState(null);
+    const [previewUrl, setPreviewUrl] = useState(null);
     const [category, setCategory] = useState('');
     const [tags, setTags] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -38,15 +39,21 @@ const NewProduct = () => {
 
     const handleClearForm = () => {
         setTitle("");
-        setDescription({});
+        setDescription(EditorState.createEmpty());
         setCategory("");
         setTags([]);
         setItemType("Note"); // Reset type to default
+        setImageFile(null);
+        setPreviewUrl(null);
     };
 
     const handleShareableLink = async () => {
-        if (!title.trim() || !description.trim() || !category.trim()) {
-            setError("Title, description, and category are required.");
+        if (!title.trim() || !description || !category.trim()) {
+            toast.error("⚠️ Please complete all required fields: Title, Description, Category", {
+                position: "bottom-left",
+                autoClose: 5000,
+            });
+            setLoading(false);
             return;
         }
     
@@ -64,48 +71,86 @@ const NewProduct = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-        setError(null);
-        setSuccess(false);
+    
+        // ✅ Validate required fields
+        if (!title.trim() || !description || !category.trim()) {
+            toast.error("⚠️ Please complete all required fields: Title, Description, Category", {
+                position: "bottom-left",
+                autoClose: 5000, // Auto close after 5 seconds
+                hideProgressBar: true,
+            });
+            setLoading(false);
+            return;
+        }
     
         if (!token) {
-            setError("User not authenticated"); // ✅ Ensure token exists
+            toast.error("⚠️ User not authenticated! Please log in.", {
+                position: "bottom-left",
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
             setLoading(false);
             return;
         }
     
         if (itemType !== "Note") {
-            setError("Only 'Note' is supported at this time.");
+            toast.error("⚠️ Only 'Note' is supported at this time.", {
+                position: "bottom-left",
+                autoClose: 5000,
+                hideProgressBar: true,
+            });
             setLoading(false);
             return;
         }
-
+    
         // ✅ Extract plain text and full rich-text data
         let plainTextContent = "";
         let rawContent = null;
-
+    
         if (description && description.getCurrentContent) {
             const contentState = description.getCurrentContent();
-            plainTextContent = contentState.getPlainText();  // ✅ Store plain text
-            rawContent = convertToRaw(contentState);  // ✅ Store full raw format
+            plainTextContent = contentState.getPlainText(); // ✅ Store plain text
+            rawContent = convertToRaw(contentState); // ✅ Store full raw format
+        }
+
+        // ✅ Upload Image to S3 if a new image was selected
+        let uploadedImageUrl = null;
+
+        if (imageFile) {
+            const formData = new FormData();
+            formData.append("image", imageFile);
+
+            try {
+                const uploadResponse = await axios.post(
+                    `${process.env.REACT_APP_API_BASE_URL}/api/images/upload`,
+                    formData,
+                    { headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` } }
+                );
+                uploadedImageUrl = uploadResponse.data.imageUrl;
+                toast.success("✅ Image uploaded successfully!", { position: "bottom-left" });
+            } catch (error) {
+                toast.error("🚨 Image upload failed. Please try again.", { position: "bottom-left" });
+                setLoading(false);
+                return;
+            }
         }
     
         const noteData = {
             title,
-            content: { raw: rawContent, text: plainTextContent },  // ✅ Store as object
+            content: { raw: rawContent, text: plainTextContent }, // ✅ Store as object
             category,
-            tags
+            tags: tags.map(tag => (typeof tag === "object" ? tag.text : tag)), // ✅ Extract tag text,
+            imageUrl: uploadedImageUrl, // ✅ Store image URL
         };
     
         try {
-            const response = await createNote(noteData, token);
-            if (!response) throw new Error("Failed to create note.");
-    
-            setSuccess("Note Created Successfully!");
+            await createNote(noteData, token);
+            toast.success("✅ Note Created Successfully!", { position: "bottom-left" });
             setIsEditing(true);
             handleClearForm(); // ✅ Reset form after success
     
         } catch (error) {
-            setError(error.message);
+            toast.error(`🚨 Error: ${error.message}`, { position: "bottom-left" });
         } finally {
             setLoading(false);
         }
@@ -113,11 +158,13 @@ const NewProduct = () => {
 
     return (
         <>
+            <ToastContainer />
             <form onSubmit={handleSubmit}>
                 <div className={styles.row}>
                     <div className={styles.col}>
                         <NameAndDescription 
-                            className={styles.card} 
+                            className={styles.card}
+                            title={title}
                             setTitle={setTitle} 
                             setDescription={setDescription}
                             descriptionState={description}
@@ -126,7 +173,8 @@ const NewProduct = () => {
                         />
                         <ImagesAndCTA 
                             className={styles.card} 
-                            //Image handling
+                            setImageFile={setImageFile}
+                            setPreviewUrl={setPreviewUrl}
                         />
                         <CategoryAndAttibutes 
                             className={styles.card}
@@ -140,7 +188,7 @@ const NewProduct = () => {
                             visible={visiblePreview}
                             onClose={() => setVisiblePreview(false)}
                             title={title} 
-                            imageUrl={imageUrl}
+                            imageUrl={previewUrl} // ✅ Updates dynamically
                         />
                     </div>
                 </div>
@@ -166,9 +214,6 @@ const NewProduct = () => {
                         setStartTime={setStartTime}
                     />
                 </Modal>
-                {/* ✅ Feedback UI */}
-                {error && <p className={styles.error}>{error}</p>}
-                {success && <p className={styles.success}>Note Created Successfully!</p>}
             </form>
         </>
     );

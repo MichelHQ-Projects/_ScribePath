@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import cn from "classnames";
+import { toast, ToastContainer } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
 import styles from "./Entry.module.sass";
+
 import TextInput from "../../../components/TextInput";
 import Image from "../../../components/Image";
 import { auth, googleProvider, signInWithPopup, createUserWithEmailAndPassword } from "../../../config/firebaseConfig";
@@ -9,7 +13,6 @@ import { auth, googleProvider, signInWithPopup, createUserWithEmailAndPassword }
 const Entry = () => {  // ✅ Remove unnecessary prop
 
   const [formData, setFormData] = useState({ name: "", email: "", password: "" });
-  const [errors, setErrors] = useState({});
   const navigate = useNavigate();
 
    // ✅ Handle input change
@@ -19,25 +22,37 @@ const Entry = () => {  // ✅ Remove unnecessary prop
 
   // ✅ Handle Form Submission (Firebase Sign-Up)
   const handleSubmit = async () => {
-    let tempErrors = {};
-
-    if (!formData.name) tempErrors.name = "Name is required";
-    if (!formData.email) tempErrors.email = "Email is required";
-    if (!formData.password) tempErrors.password = "Password is required";
-    if (formData.password.length < 6) tempErrors.password = "Password must be at least 6 characters";
-
-    if (Object.keys(tempErrors).length > 0) {
-      setErrors(tempErrors);
-      return;
+    switch (true) {
+      case !formData.name:
+        toast.error("⚠️ Name is required", { position: "top-right" });
+        return;
+      case !formData.email:
+        toast.error("⚠️ Email is required", { position: "top-right" });
+        return;
+      case !formData.password:
+        toast.error("⚠️ Password is required", { position: "top-right" });
+        return;
+      case formData.password.length < 6:
+        toast.error("⚠️ Password must be at least 6 characters", { position: "top-right" });
+        return;
     }
-
-    setErrors({}); // ✅ Clear errors if all validations pass
 
     try {
       await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+      toast.success("✅ Account created successfully!", { position: "top-right" });
       navigate("/dashboard"); // ✅ Redirect to dashboard after successful sign-up
     } catch (error) {
-      setErrors({ email: "Failed to create an account. Try again." });
+      if (error.code === "auth/email-already-in-use") {
+        toast.warn("⚠️ This email is already registered. Redirecting to Sign-In...", {
+          position: "top-right",
+          autoClose: 2000, // ✅ Delay 2 seconds before redirecting
+        });
+        setTimeout(() => {
+          navigate("/signin"); // ✅ Auto-redirect after 2 seconds
+        }, 2000);
+      } else {
+        toast.error("❌ Failed to create an account. Try again.", { position: "top-right" });
+      }
     }
   };
 
@@ -45,14 +60,18 @@ const Entry = () => {  // ✅ Remove unnecessary prop
   const handleGoogleAuth = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
+      toast.success("✅ Signed in with Google!", { position: "top-right" });
       navigate("/dashboard");
     } catch (error) {
-      setErrors({ email: "Google authentication failed." });
+      toast.error("❌ Google authentication failed.", { position: "top-right" });
     }
   };
 
   return (
     <div className={styles.entry}>
+
+      <ToastContainer />
+
       <div className={styles.head}>
         <div className={styles.info}>Sign up with Open account</div>
         <div className={styles.btns}>
@@ -73,7 +92,6 @@ const Entry = () => {  // ✅ Remove unnecessary prop
       </div>
       <div className={styles.body}>
         <div className={styles.info}>Or continue with email address</div>
-        <div className={styles.error}>{errors.name}</div>
         <TextInput
           className={styles.field}
           name="name"
@@ -84,7 +102,7 @@ const Entry = () => {  // ✅ Remove unnecessary prop
           value={formData.name}
           onChange={handleChange}
         />
-        <div className={styles.error}>{errors.email}</div>
+        
         <TextInput
           className={styles.field}
           name="email"
@@ -95,7 +113,7 @@ const Entry = () => {  // ✅ Remove unnecessary prop
           value={formData.email}
           onChange={handleChange}
         />
-        <div className={styles.error}>{errors.password}</div>
+        
         <TextInput
           className={styles.field}
           name="password"

@@ -9,7 +9,7 @@ const createNote = async (req, res) => {
     try {
         console.log(req.body);
         console.log(req.user);
-        const { title, content, tags, category } = req.body;
+        const { title, content, tags, category, imageUrl } = req.body;
         
         // Validate input
         if (!title || !content) {
@@ -23,6 +23,7 @@ const createNote = async (req, res) => {
             userId: req.user.uid, // ✅ Store Firebase UID (not MongoDB _id)
             tags,
             category,
+            imageUrl: null, // ✅ Initialize image URL to null
         });
 
         await note.save();
@@ -69,21 +70,30 @@ const getNoteById = async (req, res) => {
  */
 const updateNote = async (req, res) => {
     try {
-        const { title, content, tags, category } = req.body;
+        const { title, content, tags, category, imageUrl } = req.body;
+        const existingNote = await Note.findOne({ _id: req.params.id, userId: req.user.uid });
 
-        const note = await Note.findOneAndUpdate(
-            { _id: req.params.id, userId: req.user.uid }, // ✅ Ensure ownership
-            { title, content, tags, category },
-            { new: true }
-        );
+        if (!existingNote) return res.status(404).json({ message: "Note not found" });
 
-        if (!note) return res.status(404).json({ message: "Note not found" });
+         // ✅ If a new image is provided, delete the old one from S3
+         if (imageUrl && existingNote.imageUrl && existingNote.imageUrl !== imageUrl) {
+            await deleteImageFromS3(existingNote.imageUrl);
+        }
 
-        res.json(note);
-    } catch (error) {
-        res.status(500).json({ message: "Server error", error: error.message });
-    }
-};
+         // ✅ Update note fields
+         existingNote.title = title || existingNote.title;
+         existingNote.content = content || existingNote.content;
+         existingNote.tags = tags || existingNote.tags;
+         existingNote.category = category || existingNote.category;
+         existingNote.imageUrl = imageUrl || existingNote.imageUrl;
+
+
+         await existingNote.save();
+         res.json(existingNote);
+     } catch (error) {
+         res.status(500).json({ message: "Server error", error: error.message });
+     }
+ };
 
 /**
  * @desc Delete a note (Soft delete - move to trash)
@@ -93,7 +103,7 @@ const updateNote = async (req, res) => {
 const deleteNote = async (req, res) => {
     try {
         const note = await Note.findOneAndUpdate(
-            { _id: req.params.id, userId: req.user.uid }, // ✅ Ensure ownership
+            { _id: req.params.id, userId: req.user.uid },
             { trashed: true },
             { new: true }
         );
@@ -106,4 +116,33 @@ const deleteNote = async (req, res) => {
     }
 };
 
-module.exports = { createNote, getNotes, getNoteById, updateNote, deleteNote };
+/**
+ * @desc Permanently delete a note & remove image from S3
+ * @route DELETE /api/notes/permanent/:id
+ * @access Private
+ */
+const permanentlyDeleteNote = async (req, res) => {
+    try {
+        const note = await Note.findOne({ _id: req.params.id, userId: req.user.uid });
+
+        if (!note) return res.status(404).json({ message: "Note not found" });
+
+        // ✅ Check if other notes by this user are using the same image URL
+        if (note.imageUrl) {
+            const isImageUsed = await Note.exists({ userId: req.user.uid, imageUrl: note.imageUrl, _id: { $ne: note._id } });
+
+            if (!isImageUsed) {
+                // ✅ If no other notes are using the image, delete from S3
+                await deleteImageFromS3(note.imageUrl);
+            }
+        }
+
+        await note.deleteOne();
+        res.json({ message: "Note permanently deleted" });
+
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+module.exports = { createNote, getNotes, getNoteById, updateNote, deleteNote, permanentlyDeleteNote };

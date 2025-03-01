@@ -1,7 +1,6 @@
 import React from "react";
 import cn from "classnames";
 import styles from "./Panel.module.sass";
-import Icon from "../../../components/Icon";
 import Actions from "../../../components/Actions";
 
 const Panel = ({
@@ -17,11 +16,6 @@ const Panel = ({
 
   
   const actions = [
-    {
-        title: "Preview",
-        icon: "expand",
-        action: () => setVisiblePreview(true),
-    },
     // ✅ Show "Schedule Task" only if itemType is "Task"
     ...(itemType === "Task"
         ? [
@@ -32,13 +26,19 @@ const Panel = ({
             }
         ]
         : []),
+      {},
     {
-        title: "Get shareable link & Save",
+        title: "Save & Share",
         icon: "link",
         action: onGenerateLink, // ✅ Generates link & saves
     },
     {
-        title: "Clear data",
+      title: "Preview",
+      icon: "expand",
+      action: () => setVisiblePreview(true),
+  },
+    {
+        title: "Clear",
         icon: "close",
         action: onClearForm, // ✅ Clears the form
     },
@@ -47,12 +47,11 @@ const Panel = ({
   return (
     <div className={cn("panel", styles.panel)}>
       {/* ✅ Only show "Last Saved" if editing */}
-      {isEditing && (
-                <div className={styles.info}>
-                    <Icon name="check-all" size="24" />
-                    Last saved <span>Oct 4, 2021 - 23:32</span>
-                </div>
-            )}
+      {isEditing ? (
+        <div className={styles.info}>Last saved <span>Oct 4, 2021 - 23:32</span></div>
+    ) : (
+        <div className={styles.info}>Don't forget to save! <span>Avoid losing your progress!</span></div>
+    )}
       <div className={styles.btns}>
         {/* ✅ "Save" button triggers form submission */}
         <button className={cn("button", styles.button)} onClick={onSubmit} disabled={loading}>
