@@ -1,35 +1,65 @@
 # ScribePath 📝🚀  
 
+# 📌 ScribePath 📝🚀  
+
 ScribePath is an advanced **task and note management** application designed to **help technical product managers** streamline their workflow. Our goal is to create an intuitive platform for managing notes, tasks, and collaborative efforts, **integrating AI-powered features, advanced file handling, and seamless team collaboration.**  
 
-🚀 **Built with the MERN Stack (MongoDB, Express, React, Node.js)**, Firebase for authentication, and AWS S3 for future file storage.
+🚀 **Built with the MERN Stack (MongoDB, Express, React, Node.js)**, Firebase for authentication, and AWS S3 for file storage.
 
 ---
 
-## **📌 Project Roadmap & Future Enhancements**
-ScribePath is evolving **phase by phase**, with major milestones aimed at improving functionality and scalability.
+## **📢 Changelog**
+### **Latest Updates - March 2024**
 
-### **🌟 Current Phase (MVP Development)**
-✅ Firebase Authentication for secure login & registration  
-✅ User management system with JWT authentication  
-✅ Notes & Task CRUD operations with MongoDB  
-✅ Rate limiting and security best practices  
-✅ Soft delete (trash with auto-delete after 30 days)  
-✅ CORS setup for frontend integration  
+### ✅ **Task Management Added**
+- Implemented **Task Creation** within the same form as Notes.
+- Tasks now have **priority, completion status, and due date** fields.
+- Integrated **PriorityAndScheduling.js** for **task scheduling**.
+- Backend API for Tasks (`taskRoutes.js`, `taskController.js`) fully implemented.
+- Created `taskService.js` for **frontend API calls**.
+
+### ✅ **Dynamic Form Improvements**
+- `NewProduct.js` now **dynamically adjusts** form fields based on `selectedType` (`Note` vs `Task`).
+- Task-specific fields like **priority and due date** only show when "Task" is selected.
+- Notes and Tasks **share the same image upload system**.
+- Integrated `Schedule.js` component for **Task Due Date selection**.
+
+### ✅ **Enhanced Image Handling**
+- Implemented **AWS S3 uploads** with secure, public-read bucket policies.
+- Images are now **uploaded on Save**, preventing unnecessary uploads.
+- `File.js` now supports **real-time image previews** before upload.
+- Image URLs are **stored in Notes/Tasks**, allowing reuse.
+- Updated **Bucket Policies** to prevent unauthorized deletions while allowing public access.
+
+### ✅ **Backend Enhancements**
+- Improved **MongoDB schema** for Notes and Tasks.
+- Added **error handling & debugging logs** in `noteController.js` and `taskController.js`.
+- Created `/api/images/upload` for **secure image storage in S3**.
 
 ---
 
-### **📅 Upcoming Features & Development Plan**
-🔹 **Phase 2: Task Management Enhancements**  
-🔹 **Phase 3: Embedded Content (YouTube, Images, Files)**  
-🔹 **Phase 4: AI-Powered Task Suggestions & Summaries**  
-🔹 **Phase 5: Personal vs. Team Environments**  
-🔹 **Phase 6: Drag & Drop Boards for Task Organization**  
+## **📅 Upcoming Features & Development Plan**
+### 🔹 **Profile Management**
+- Profile View UI (User details, email, and profile picture).
+- Implement **Profile Image Upload** to AWS S3.
+- Display **Profile Image** in the Dashboard and Navbar.
 
-💡 **AI Integration (Long-Term Vision)**  
-- Smart task suggestions based on user behavior  
-- Summarization of notes using AI  
-- Automated reminders and predictive deadline alerts  
+### 🔹 **Dashboard Integration**
+- Fetch **Notes, Tasks, and Projects** from backend.
+- Display **summary widgets** (Total Notes, Pending Tasks, Completed Tasks, etc.).
+- Implement **quick actions** (Create Note/Task directly from Dashboard).
+
+### 🔹 **Expanded Views**
+- **Individual Note View** (Read/Edit a single note).
+- **Individual Task View** (Read/Edit a single task, mark complete).
+- **All Notes Page** (Paginated list of all notes).
+- **All Tasks Page** (List of all tasks with filters: Pending, Completed, High Priority).
+- **Projects View** (Allow users to create and manage Projects in future iterations).
+
+### 🔹 **Optimizations & Enhancements**
+- Improve **UI responsiveness** for mobile/tablet users.
+- Implement **search & filtering** for Notes and Tasks.
+- Enhance **error handling & loading states**.
 
 ---
 
@@ -38,14 +68,14 @@ ScribePath is evolving **phase by phase**, with major milestones aimed at improv
 - **Node.js, Express.js** – API & business logic  
 - **MongoDB + Mongoose** – Database & schemas  
 - **Firebase Authentication** – Secure user management  
-- **AWS S3** (Future) – File storage for notes and tasks  
+- **AWS S3** – File storage for notes and tasks  
 - **Rate Limiting & CORS** – Security & API protection  
 
-### **Frontend (Upcoming)**
+### **Frontend**
 - **React.js + Redux (Planned UI Framework)**  
 - **Component-driven UI for a seamless experience**  
 
-### **Deployment (To be Determined)**
+### **Deployment**
 - Possible services: **Heroku, AWS, DigitalOcean**  
 - CI/CD via **GitHub Actions**  
 
@@ -63,7 +93,7 @@ ScribePath is evolving **phase by phase**, with major milestones aimed at improv
 │   ├── .env.example     # Example environment file
 │   ├── server.js        # Main Express.js server
 │   └── firebaseAdmin.js # Firebase admin setup
-├── /frontend (future implementation)
+├── /frontend 
 ```
 
 ---
@@ -76,18 +106,23 @@ cd ScribePath
 ```
 
 ### **2️⃣ Install Dependencies**
-```bash
+```
 cd backend
 npm install
+cd ..
+cd frontend
+npm install
+npm start
 ```
 
 ### **3️⃣ Set Up Environment Variables**
-Create a `.env` file inside the `/backend` folder using the provided template:
-```bash
+Create a `.env` file inside the `/backend` & `/frontend` folder using the provided template:
+```
 cp .env.example .env
 ```
 Fill in the required values:
-```
+#Backend
+``` 
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 FIREBASE_PROJECT_ID=your_firebase_project_id
@@ -98,6 +133,14 @@ AWS_ACCESS_KEY_ID=your_aws_access_key  # (Future feature)
 AWS_SECRET_ACCESS_KEY=your_aws_secret_key
 AWS_S3_BUCKET_NAME=your_s3_bucket_name
 ```
+#Frontend
+# API Base URL
+REACT_APP_API_BASE_URL=http://localhost:5000
+
+# Firebase
+REACT_APP_FIREBASE_API_KEY=your-firebase-api-key
+REACT_APP_FIREBASE_AUTH_DOMAIN=your-auth-domain
+
 
 ### **4️⃣ Start the Server**
 ```bash
